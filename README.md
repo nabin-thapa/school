@@ -94,3 +94,4 @@ Create a `.github/workflows/deploy.yml` using the standard Vite + GitHub Pages w
 ## Note on Media
 Placeholder images from Unsplash are currently used. For production, please replace these URLs in the HTML files with local images placed inside `src/assets/images/` and reference them directly.
 "# vidhyodaya" 
+"# vidhyodaya" 
