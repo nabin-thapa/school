@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us | Vidyodaya Shishu Sadan</title>
+    <meta name="description" content="Learn about Vidyodaya Shishu Sadan">
+    <meta property="og:title" content="About Us | Vidyodaya Shishu Sadan">
+    <meta property="og:description" content="Learn about Vidyodaya Shishu Sadan">
+    <meta property="og:image" content="/src/assets/images/og-image.jpg">
+    <meta property="og:url" content="https://vidyodayaschool.edu.np">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Netlify Identity Widget -->
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    
+    <!-- AOS CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/src/css/style.css">
+</head>
+<body class="inner-page bg-gray-50">
+
+    <!-- Loader -->
+    <div id="loader">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Header & Navbar -->
+    <header>
+        <!-- Top Bar -->
+        <div class="bg-primary-900 text-white text-sm py-2 hidden md:block">
+            <div class="container mx-auto px-4 flex justify-between items-center">
+                <div class="flex space-x-6">
+                    <span class="flex items-center"><i data-lucide="map-pin" class="w-4 h-4 mr-2 text-secondary-500"></i> Gauradaha-1, Jhapa, Nepal</span>
+                    <span class="flex items-center"><i data-lucide="phone" class="w-4 h-4 mr-2 text-secondary-500"></i> +977-23-480194</span>
+                    <span class="flex items-center"><i data-lucide="mail" class="w-4 h-4 mr-2 text-secondary-500"></i> info@vidyodayaschool.edu.np</span>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="#" class="hover:text-secondary-400 transition"><i data-lucide="facebook" class="w-4 h-4"></i></a>
+                    <a href="#" class="hover:text-secondary-400 transition"><i data-lucide="twitter" class="w-4 h-4"></i></a>
+                    <a href="#" class="hover:text-secondary-400 transition"><i data-lucide="youtube" class="w-4 h-4"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Navbar -->
+        <nav id="navbar" class="fixed w-full z-50 transition-all duration-300 py-4 bg-white shadow-md text-gray-800">
+            <div class="container mx-auto px-4 flex justify-between items-center">
+                <a href="index.html" class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-secondary-500 rounded-full flex items-center justify-center text-primary-900 font-bold text-xl">V</div>
+                    <div>
+                        <h1 class="text-xl md:text-2xl font-bold font-heading leading-tight m-0 nav-heading drop-shadow-md">Vidyodaya Shishu Sadan</h1>
+                        <p class="text-xs font-medium tracking-wide nav-subtext hidden md:block drop-shadow-md">Gauradaha-1, Jhapa</p>
+                    </div>
+                </a>
+
+                <!-- Desktop Menu -->
+                <div class="hidden lg:flex space-x-8 items-center font-medium">
+                    <a href="index.html" class="hover:text-secondary-500 transition nav-link ">Home</a>
+                    <a href="about.html" class="hover:text-secondary-500 transition nav-link active-nav font-bold">About Us</a>
+                    <a href="academics.html" class="hover:text-secondary-500 transition nav-link ">Academics</a>
+                    <a href="facilities.html" class="hover:text-secondary-500 transition nav-link ">Facilities</a>
+                    <a href="gallery.html" class="hover:text-secondary-500 transition nav-link ">Gallery</a>
+                    <a href="notices.html" class="hover:text-secondary-500 transition nav-link ">Notices</a>
+                    <a href="contact.html" class="hover:text-secondary-500 transition nav-link ">Contact</a>
+                    <a href="contact.html" class="bg-secondary-500 text-primary-900 px-5 py-2 rounded-full hover:bg-secondary-600 transition font-bold shadow-lg">Admission Open</a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button id="mobile-menu-btn" class="lg:hidden nav-link focus:outline-none">
+                    <i data-lucide="menu" class="w-8 h-8 drop-shadow-md"></i>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu" class="hidden fixed inset-0 z-40 bg-white pt-24 pb-6 px-6 overflow-y-auto">
+            <div class="flex justify-end mb-4">
+                <button id="mobile-menu-close" class="text-gray-500 hover:text-primary-600 focus:outline-none">
+                    <i data-lucide="x" class="w-8 h-8"></i>
+                </button>
+            </div>
+            <div class="flex flex-col space-y-4 text-lg font-medium text-gray-800">
+                <a href="index.html" class="hover:text-primary-600 border-b pb-2 ">Home</a>
+                <a href="about.html" class="hover:text-primary-600 border-b pb-2 text-primary-600 font-bold">About Us</a>
+                <a href="academics.html" class="hover:text-primary-600 border-b pb-2 ">Academics</a>
+                <a href="facilities.html" class="hover:text-primary-600 border-b pb-2 ">Facilities</a>
+                <a href="gallery.html" class="hover:text-primary-600 border-b pb-2 ">Gallery</a>
+                <a href="notices.html" class="hover:text-primary-600 border-b pb-2 ">Notices</a>
+                <a href="contact.html" class="hover:text-primary-600 border-b pb-2 ">Contact</a>
+                <a href="contact.html" class="btn-primary text-center mt-4 !w-full">Admission Open</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="bg-primary-900 pt-32 pb-20 text-center relative overflow-hidden">
+        <div class="absolute inset-0 z-0 opacity-20">
+            <img src="https://images.unsplash.com/photo-1577896851231-70ef18881754?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" alt="About Us" class="w-full h-full object-cover" />
+        </div>
+        <div class="container mx-auto px-4 relative z-10">
+            <h1 class="text-5xl font-bold text-white mb-4">About Us</h1>
+            <p class="text-blue-100 text-lg max-w-2xl mx-auto">Discover our history, mission, and the core values that drive Vidyodaya Shishu Sadan.</p>
+            <div class="flex items-center justify-center mt-6 text-sm font-medium text-blue-200">
+                <a href="index.html" class="hover:text-white transition">Home</a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2"></i>
+                <span class="text-secondary-400">About Us</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Introduction -->
+    <section class="section-padding bg-white">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col lg:flex-row items-center gap-16">
+                <div class="lg:w-1/2" data-aos="fade-right">
+                    <span class="text-secondary-600 font-bold tracking-wider uppercase text-sm">Our Story</span>
+                    <h2 class="text-4xl font-bold mt-2 mb-6 text-primary-900">A Legacy of Academic Excellence in Gauradaha</h2>
+                    <p class="text-gray-600 text-lg mb-6 leading-relaxed">Established with a vision to provide quality education in Gauradaha-1, Jhapa, Vidyodaya Shishu Sadan has grown into one of the most prestigious educational institutions in the region. We are committed to fostering an environment where students can discover their potential and develop into responsible global citizens.</p>
+                    <p class="text-gray-600 text-lg mb-8 leading-relaxed">Our approach blends traditional moral values with modern teaching methodologies. We believe that true education extends beyond the classroom, encompassing character building, physical fitness, and creative expression.</p>
+                    
+                    <div class="grid grid-cols-2 gap-6 mt-8">
+                        <div class="flex items-start">
+                            <div class="w-12 h-12 rounded-full bg-secondary-100 flex items-center justify-center text-secondary-600 mr-4 flex-shrink-0">
+                                <i data-lucide="target" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-primary-900 mb-1">Our Mission</h4>
+                                <p class="text-sm text-gray-500">To provide holistic education that empowers students.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 mr-4 flex-shrink-0">
+                                <i data-lucide="eye" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-primary-900 mb-1">Our Vision</h4>
+                                <p class="text-sm text-gray-500">To be a center of excellence in modern education.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:w-1/2 relative" data-aos="fade-left">
+                    <div class="grid grid-cols-2 gap-4">
+                        <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Students" class="rounded-2xl shadow-lg h-64 object-cover w-full mt-8">
+                        <img src="https://images.unsplash.com/photo-1509062522246-3755977927d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Classroom" class="rounded-2xl shadow-lg h-64 object-cover w-full">
+                    </div>
+                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-secondary-500 rounded-full flex items-center justify-center shadow-xl border-8 border-white">
+                        <div class="text-center text-primary-900">
+                            <span class="block text-2xl font-bold">15+</span>
+                            <span class="block text-xs font-bold uppercase">Years</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-primary-900 text-white pt-16 pb-8 border-t-4 border-secondary-500 mt-20">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+                <!-- About -->
+                <div data-aos="fade-up" data-aos-delay="0">
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-10 h-10 bg-secondary-500 rounded-full flex items-center justify-center text-primary-900 font-bold text-xl">V</div>
+                        <h2 class="text-xl font-bold font-heading m-0">Vidyodaya Shishu Sadan</h2>
+                    </div>
+                    <p class="text-blue-100 text-sm leading-relaxed mb-6">Empowering minds and shaping futures in Gauradaha-1, Jhapa. Providing quality education with a blend of modern curriculum and traditional values.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 rounded-full bg-primary-800 flex items-center justify-center hover:bg-secondary-500 hover:text-primary-900 transition"><i data-lucide="facebook" class="w-5 h-5"></i></a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-primary-800 flex items-center justify-center hover:bg-secondary-500 hover:text-primary-900 transition"><i data-lucide="twitter" class="w-5 h-5"></i></a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-primary-800 flex items-center justify-center hover:bg-secondary-500 hover:text-primary-900 transition"><i data-lucide="instagram" class="w-5 h-5"></i></a>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div data-aos="fade-up" data-aos-delay="100">
+                    <h3 class="text-lg font-bold mb-6 text-secondary-400">Quick Links</h3>
+                    <ul class="space-y-3 text-blue-100 text-sm">
+                        <li><a href="about.html" class="hover:text-secondary-400 transition flex items-center"><i data-lucide="chevron-right" class="w-4 h-4 mr-2"></i> About Us</a></li>
+                        <li><a href="academics.html" class="hover:text-secondary-400 transition flex items-center"><i data-lucide="chevron-right" class="w-4 h-4 mr-2"></i> Academics</a></li>
+                        <li><a href="facilities.html" class="hover:text-secondary-400 transition flex items-center"><i data-lucide="chevron-right" class="w-4 h-4 mr-2"></i> Facilities</a></li>
+                        <li><a href="gallery.html" class="hover:text-secondary-400 transition flex items-center"><i data-lucide="chevron-right" class="w-4 h-4 mr-2"></i> Gallery</a></li>
+                        <li><a href="notices.html" class="hover:text-secondary-400 transition flex items-center"><i data-lucide="chevron-right" class="w-4 h-4 mr-2"></i> Notices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact Info -->
+                <div data-aos="fade-up" data-aos-delay="200">
+                    <h3 class="text-lg font-bold mb-6 text-secondary-400">Contact Us</h3>
+                    <ul class="space-y-4 text-blue-100 text-sm">
+                        <li class="flex items-start">
+                            <i data-lucide="map-pin" class="w-5 h-5 mr-3 text-secondary-500 flex-shrink-0 mt-0.5"></i>
+                            <span>Gauradaha-1, Jhapa<br>Koshi Province, Nepal</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i data-lucide="phone" class="w-5 h-5 mr-3 text-secondary-500 flex-shrink-0"></i>
+                            <span>+977-23-480194</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i data-lucide="mail" class="w-5 h-5 mr-3 text-secondary-500 flex-shrink-0"></i>
+                            <span>info@vidyodayaschool.edu.np</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Newsletter -->
+                <div data-aos="fade-up" data-aos-delay="300">
+                    <h3 class="text-lg font-bold mb-6 text-secondary-400">Newsletter</h3>
+                    <p class="text-blue-100 text-sm mb-4">Subscribe to our newsletter for the latest updates and notices.</p>
+                    <form class="flex flex-col space-y-3">
+                        <input type="email" placeholder="Your Email Address" class="px-4 py-3 rounded-lg bg-primary-800 border border-primary-700 text-white placeholder-blue-300 focus:outline-none focus:border-secondary-500 transition">
+                        <button type="button" class="btn-secondary w-full text-center">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="border-t border-primary-800 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-blue-200">
+                <p>&copy; 2026 Vidyodaya Shishu Sadan. All rights reserved.</p>
+                <p class="mt-2 md:mt-0">Designed with <i data-lucide="heart" class="w-4 h-4 inline text-red-500 mx-1"></i> in Nepal</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script type="module" src="/src/js/main.js"></script>
+</body>
+</html>

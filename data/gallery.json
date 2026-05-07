@@ -1,0 +1,26 @@
+[
+  {
+    "image": "/src/assets/images/school-photo.jpg",
+    "alt": "School Building",
+    "spanClass": "md:col-span-2 md:row-span-2",
+    "delay": ""
+  },
+  {
+    "image": "https://images.unsplash.com/photo-1509062522246-3755977927d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    "alt": "Classroom Activity",
+    "spanClass": "",
+    "delay": "100"
+  },
+  {
+    "image": "https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    "alt": "Sports Event",
+    "spanClass": "",
+    "delay": "200"
+  },
+  {
+    "image": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    "alt": "Computer Lab",
+    "spanClass": "",
+    "delay": ""
+  }
+]

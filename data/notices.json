@@ -1,0 +1,24 @@
+[
+  {
+    "date": "10",
+    "month": "Mar",
+    "isUrgent": true,
+    "postedText": "Posted today",
+    "title": "Admission Open for 2026",
+    "description": "Admissions are now open for Playgroup to Grade 9. Please visit the administration office during working hours.",
+    "linkText": "Read More",
+    "link": "#",
+    "colorClass": "secondary"
+  },
+  {
+    "date": "05",
+    "month": "Mar",
+    "isUrgent": false,
+    "postedText": "",
+    "title": "First Term Examination Routine",
+    "description": "The first term examination routine has been published. Exams will commence from 20th March.",
+    "linkText": "Download PDF",
+    "link": "#",
+    "colorClass": "primary"
+  }
+]

@@ -1,0 +1,43 @@
+backend:
+  name: git-gateway
+  branch: main # Branch to update (optional; defaults to main/master)
+
+media_folder: "src/assets/images"
+public_folder: "/src/assets/images"
+
+collections:
+  - name: "content_lists"
+    label: "Content Management"
+    files:
+      - label: "Notices List"
+        name: "notices"
+        file: "data/notices.json"
+        format: "json"
+        fields:
+          - name: notices
+            label: Notices
+            widget: list
+            fields:
+              - {label: "Date (e.g. 10)", name: "date", widget: "string"}
+              - {label: "Month (e.g. Mar)", name: "month", widget: "string"}
+              - {label: "Is Urgent?", name: "isUrgent", widget: "boolean", default: false, required: false}
+              - {label: "Posted Text (e.g. Posted today)", name: "postedText", widget: "string", required: false}
+              - {label: "Title", name: "title", widget: "string"}
+              - {label: "Description", name: "description", widget: "text"}
+              - {label: "Link Text", name: "linkText", widget: "string", default: "Read More"}
+              - {label: "Link URL", name: "link", widget: "string", default: "#"}
+              - {label: "Color Theme (primary, secondary, red, green)", name: "colorClass", widget: "string", default: "primary"}
+
+      - label: "Gallery Images"
+        name: "gallery"
+        file: "data/gallery.json"
+        format: "json"
+        fields:
+          - name: gallery
+            label: Gallery Images
+            widget: list
+            fields:
+              - {label: "Image", name: "image", widget: "image"}
+              - {label: "Alt Text", name: "alt", widget: "string"}
+              - {label: "Grid Span Class (optional, e.g., md:col-span-2 md:row-span-2)", name: "spanClass", widget: "string", required: false}
+              - {label: "Animation Delay (optional, e.g., 100)", name: "delay", widget: "string", required: false}
