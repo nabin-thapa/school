@@ -1,7 +1,7 @@
 import os
 import json
 
-base_dir = r"c:\Users\Admin\OneDrive\Attachments\Desktop\vidhyodhya"
+base_dir = os.path.dirname(os.path.abspath(__file__))
 
 def write_file(filepath, content):
     full_path = os.path.join(base_dir, filepath)
