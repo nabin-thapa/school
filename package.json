@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "Vidyodaya Shishu Sadan School Website",
   "scripts": {
-    "dev": "vite",
-    "build": "python build_html.py && vite build",
-    "preview": "vite preview"
+    "dev": "node node_modules/vite/bin/vite.js",
+    "build": "python build_html.py && node node_modules/vite/bin/vite.js build",
+    "preview": "node node_modules/vite/bin/vite.js preview"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.16",
