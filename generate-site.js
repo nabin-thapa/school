@@ -1,15 +1,15 @@
-import os
-import json
+const fs = require('fs');
+const path = require('path');
 
-base_dir = os.path.dirname(os.path.abspath(__file__))
+const baseDir = __dirname;
 
-def write_file(filepath, content):
-    full_path = os.path.join(base_dir, filepath)
-    os.makedirs(os.path.dirname(full_path), exist_ok=True)
-    with open(full_path, "w", encoding="utf-8") as f:
-        f.write(content.strip() + "\n")
+function writeFile(filepath, content) {
+    const fullPath = path.join(baseDir, filepath);
+    fs.mkdirSync(path.dirname(fullPath), { recursive: true });
+    fs.writeFileSync(fullPath, content.trim() + '\n', 'utf-8');
+}
 
-HEAD_TEMPLATE = """
+const HEAD_TEMPLATE = `
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -34,9 +34,9 @@ HEAD_TEMPLATE = """
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/src/css/style.css">
 </head>
-"""
+`;
 
-HEADER = """
+const HEADER = `
     <!-- Loader -->
     <div id="loader">
         <div class="spinner"></div>
@@ -109,9 +109,9 @@ HEADER = """
             </div>
         </div>
     </header>
-"""
+`;
 
-FOOTER = """
+const FOOTER = `
     <!-- Footer -->
     <footer class="bg-primary-900 text-white pt-16 pb-8 border-t-4 border-secondary-500 mt-20">
         <div class="container mx-auto px-4">
@@ -185,39 +185,42 @@ FOOTER = """
     <script type="module" src="/src/js/main.js"></script>
 </body>
 </html>
-"""
+`;
 
-def generate_page(filename, title, desc, active_nav, content, is_home=False):
-    nav_class = "text-white" if is_home else "bg-white shadow-md text-gray-800"
+function generatePage(filename, title, desc, activeNav, content, isHome = false) {
+    let navClass = isHome ? "text-white" : "bg-white shadow-md text-gray-800";
     
-    html = '<!DOCTYPE html>\n<html lang="en">\n'
+    let html = '<!DOCTYPE html>\n<html lang="en">\n';
     
-    head_str = HEAD_TEMPLATE.replace("{{title}}", title).replace("{{desc}}", desc)
-    html += head_str
+    let headStr = HEAD_TEMPLATE.replace("{{title}}", title).replace("{{desc}}", desc);
+    html += headStr;
     
-    body_class = "home-page" if is_home else "inner-page"
-    html += f'<body class="{body_class} bg-gray-50">\n'
+    let bodyClass = isHome ? "home-page" : "inner-page";
+    html += `<body class="${bodyClass} bg-gray-50">\n`;
     
-    header_str = HEADER
-    header_str = header_str.replace("{{nav_class}}", nav_class)
+    let headerStr = HEADER;
+    headerStr = headerStr.replace("{{nav_class}}", navClass);
     
-    navs = ["home", "about", "academics", "facilities", "gallery", "notices", "contact"]
-    for nav in navs:
-        desk_active = "active-nav font-bold" if active_nav == nav else ""
-        if is_home and desk_active:
-            desk_active = "text-secondary-400 font-bold"
-        header_str = header_str.replace(f"{{{{active_{nav}}}}}", desk_active)
+    const navs = ["home", "about", "academics", "facilities", "gallery", "notices", "contact"];
+    navs.forEach(nav => {
+        let deskActive = activeNav === nav ? "active-nav font-bold" : "";
+        if (isHome && deskActive) {
+            deskActive = "text-secondary-400 font-bold";
+        }
+        headerStr = headerStr.split(`{{active_${nav}}}`).join(deskActive);
         
-        mob_active = "text-primary-600 font-bold" if active_nav == nav else ""
-        header_str = header_str.replace(f"{{{{active_{nav}_mob}}}}", mob_active)
-        
-    html += header_str
-    html += content
-    html += FOOTER
+        let mobActive = activeNav === nav ? "text-primary-600 font-bold" : "";
+        headerStr = headerStr.split(`{{active_${nav}_mob}}`).join(mobActive);
+    });
     
-    write_file(filename, html)
+    html += headerStr;
+    html += content;
+    html += FOOTER;
+    
+    writeFile(filename, html);
+}
 
-HOME_CONTENT = """
+const HOME_CONTENT = `
     <section class="relative h-screen flex items-center justify-center overflow-hidden">
         <div class="absolute inset-0 z-0">
             <img src="/src/assets/images/school-photo.jpg" alt="School Campus" class="w-full h-full object-cover" />
@@ -307,9 +310,9 @@ HOME_CONTENT = """
             </div>
         </div>
     </section>
-"""
+`;
 
-ABOUT_CONTENT = """
+const ABOUT_CONTENT = `
     <!-- Page Header -->
     <section class="bg-primary-900 pt-32 pb-20 text-center relative overflow-hidden">
         <div class="absolute inset-0 z-0 opacity-20">
@@ -372,9 +375,9 @@ ABOUT_CONTENT = """
             </div>
         </div>
     </section>
-"""
+`;
 
-ACADEMICS_CONTENT = """
+const ACADEMICS_CONTENT = `
     <!-- Page Header -->
     <section class="bg-primary-900 pt-32 pb-20 text-center relative overflow-hidden">
         <div class="absolute inset-0 z-0 opacity-20">
@@ -419,9 +422,9 @@ ACADEMICS_CONTENT = """
             </div>
         </div>
     </section>
-"""
+`;
 
-FACILITIES_CONTENT = """
+const FACILITIES_CONTENT = `
     <section class="bg-primary-900 pt-32 pb-20 text-center relative overflow-hidden">
         <div class="container mx-auto px-4 relative z-10">
             <h1 class="text-5xl font-bold text-white mb-4">Our Facilities</h1>
@@ -465,15 +468,18 @@ FACILITIES_CONTENT = """
             </div>
         </div>
     </section>
-"""
+`;
 
-with open(os.path.join(base_dir, "data", "gallery.json"), "r", encoding="utf-8") as f:
-    gallery_data = json.load(f)
-    if isinstance(gallery_data, dict) and "gallery" in gallery_data:
-        gallery_data = gallery_data["gallery"]
-    gallery_data = gallery_data[:50] # Hard limit to prevent slow loading on large datasets
+// Dynamic Content loading
+let galleryData = [];
+try {
+    const raw = fs.readFileSync(path.join(baseDir, 'data', 'gallery.json'), 'utf-8');
+    const parsed = JSON.parse(raw);
+    galleryData = Array.isArray(parsed) ? parsed : (parsed.gallery || []);
+    galleryData = galleryData.slice(0, 50);
+} catch (e) { console.error("Gallery data load error", e); }
 
-GALLERY_CONTENT = """
+let GALLERY_CONTENT = `
     <section class="bg-primary-900 pt-32 pb-20 text-center relative overflow-hidden">
         <div class="container mx-auto px-4 relative z-10">
             <h1 class="text-5xl font-bold text-white mb-4">Gallery</h1>
@@ -484,32 +490,36 @@ GALLERY_CONTENT = """
     <section class="section-padding">
         <div class="container mx-auto px-4">
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 auto-rows-[250px]">
-"""
-for item in gallery_data:
-    delay_attr = f' data-aos-delay="{item["delay"]}"' if item.get("delay") else ""
-    zoom_icon = '<span class="text-white font-bold text-xl"><i data-lucide="zoom-in" class="w-8 h-8 mb-2 mx-auto"></i> View Image</span>' if item.get("spanClass") else '<i data-lucide="zoom-in" class="w-8 h-8 text-white"></i>'
-    
-    GALLERY_CONTENT += f"""
-                <a href="#" class="gallery-item block relative overflow-hidden rounded-xl group {item.get('spanClass', '')}" data-aos="fade-up"{delay_attr}>
-                    <img src="{item['image']}" alt="{item['alt']}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
-                    <div class="absolute inset-0 bg-primary-900/60 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center">
-                        {zoom_icon}
-                    </div>
-                </a>"""
+`;
 
-GALLERY_CONTENT += """
+galleryData.forEach(item => {
+    let delayAttr = item.delay ? ` data-aos-delay="${item.delay}"` : "";
+    let zoomIcon = item.spanClass ? '<span class="text-white font-bold text-xl"><i data-lucide="zoom-in" class="w-8 h-8 mb-2 mx-auto"></i> View Image</span>' : '<i data-lucide="zoom-in" class="w-8 h-8 text-white"></i>';
+    
+    GALLERY_CONTENT += `
+                <a href="#" class="gallery-item block relative overflow-hidden rounded-xl group ${item.spanClass || ''}" data-aos="fade-up"${delayAttr}>
+                    <img src="${item.image}" alt="${item.alt}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                    <div class="absolute inset-0 bg-primary-900/60 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center">
+                        ${zoomIcon}
+                    </div>
+                </a>`;
+});
+
+GALLERY_CONTENT += `
             </div>
         </div>
     </section>
-"""
+`;
 
-with open(os.path.join(base_dir, "data", "notices.json"), "r", encoding="utf-8") as f:
-    notices_data = json.load(f)
-    if isinstance(notices_data, dict) and "notices" in notices_data:
-        notices_data = notices_data["notices"]
-    notices_data = notices_data[:50] # Hard limit to prevent slow loading on large datasets
+let noticesData = [];
+try {
+    const raw = fs.readFileSync(path.join(baseDir, 'data', 'notices.json'), 'utf-8');
+    const parsed = JSON.parse(raw);
+    noticesData = Array.isArray(parsed) ? parsed : (parsed.notices || []);
+    noticesData = noticesData.slice(0, 50);
+} catch (e) { console.error("Notices data load error", e); }
 
-NOTICES_CONTENT = """
+let NOTICES_CONTENT = `
     <section class="bg-primary-900 pt-32 pb-20 text-center relative overflow-hidden">
         <div class="container mx-auto px-4 relative z-10">
             <h1 class="text-5xl font-bold text-white mb-4">Notices & Updates</h1>
@@ -520,38 +530,41 @@ NOTICES_CONTENT = """
     <section class="section-padding">
         <div class="container mx-auto px-4 max-w-4xl">
             <div class="space-y-6">
-"""
-for item in notices_data:
-    urgent_badge = f'<span class="bg-red-100 text-red-600 text-xs font-bold px-2 py-1 rounded">Urgent</span>' if item.get("isUrgent") else ""
-    posted_text = f'<span class="text-sm text-gray-500 flex items-center"><i data-lucide="clock" class="w-3 h-3 mr-1"></i> {item["postedText"]}</span>' if item.get("postedText") else ""
+`;
+
+noticesData.forEach(item => {
+    let urgentBadge = item.isUrgent ? '<span class="bg-red-100 text-red-600 text-xs font-bold px-2 py-1 rounded">Urgent</span>' : "";
+    let postedText = item.postedText ? `<span class="text-sm text-gray-500 flex items-center"><i data-lucide="clock" class="w-3 h-3 mr-1"></i> ${item.postedText}</span>` : "";
     
-    meta_div = ""
-    if urgent_badge or posted_text:
-        meta_div = f'<div class="flex items-center gap-2 mb-2">{urgent_badge}{posted_text}</div>'
+    let metaDiv = "";
+    if (urgentBadge || postedText) {
+        metaDiv = `<div class="flex items-center gap-2 mb-2">${urgentBadge}${postedText}</div>`;
+    }
         
-    NOTICES_CONTENT += f"""
-                <div class="bg-white p-6 rounded-2xl shadow-md border-l-4 border-{item['colorClass']}-500 hover:shadow-lg transition flex flex-col md:flex-row gap-6 items-center" data-aos="fade-up">
+    NOTICES_CONTENT += `
+                <div class="bg-white p-6 rounded-2xl shadow-md border-l-4 border-${item.colorClass}-500 hover:shadow-lg transition flex flex-col md:flex-row gap-6 items-center" data-aos="fade-up">
                     <div class="bg-gray-50 p-4 rounded-xl text-center min-w-[100px] border border-gray-100">
-                        <span class="block text-2xl font-bold text-primary-600">{item['date']}</span>
-                        <span class="block text-sm uppercase font-bold text-gray-500">{item['month']}</span>
+                        <span class="block text-2xl font-bold text-primary-600">${item.date}</span>
+                        <span class="block text-sm uppercase font-bold text-gray-500">${item.month}</span>
                     </div>
                     <div class="flex-grow">
-                        {meta_div}
-                        <h3 class="text-xl font-bold text-primary-900 mb-2">{item['title']}</h3>
-                        <p class="text-gray-600">{item['description']}</p>
+                        ${metaDiv}
+                        <h3 class="text-xl font-bold text-primary-900 mb-2">${item.title}</h3>
+                        <p class="text-gray-600">${item.description}</p>
                     </div>
                     <div>
-                        <a href="{item['link']}" class="btn-outline !py-2 !px-4 text-sm whitespace-nowrap">{item['linkText']}</a>
+                        <a href="${item.link}" class="btn-outline !py-2 !px-4 text-sm whitespace-nowrap">${item.linkText}</a>
                     </div>
-                </div>"""
+                </div>`;
+});
 
-NOTICES_CONTENT += """
+NOTICES_CONTENT += `
             </div>
         </div>
     </section>
-"""
+`;
 
-CONTACT_CONTENT = """
+const CONTACT_CONTENT = `
     <section class="bg-primary-900 pt-32 pb-20 text-center relative overflow-hidden">
         <div class="container mx-auto px-4 relative z-10">
             <h1 class="text-5xl font-bold text-white mb-4">Contact Us</h1>
@@ -669,9 +682,9 @@ CONTACT_CONTENT = """
     <section class="h-96 w-full">
         <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1m3!1d14258.916960411855!2d87.6836968!3d26.6890317!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39e58e65873a70cb%3A0xf598a27e3ffb0c53!2sGauradaha%20Jhapa!5e0!3m2!1sen!2snp!4v1700000000000!5m2!1sen!2snp" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
     </section>
-"""
+`;
 
-ERROR_404_CONTENT = """
+const ERROR_404_CONTENT = `
     <section class="bg-primary-900 pt-40 pb-32 text-center relative overflow-hidden flex flex-col justify-center min-h-[70vh]">
         <div class="container mx-auto px-4 relative z-10">
             <h1 class="text-9xl font-bold text-white mb-4 drop-shadow-lg">404</h1>
@@ -682,16 +695,16 @@ ERROR_404_CONTENT = """
             </a>
         </div>
     </section>
-"""
+`;
 
-# Generate pages
-generate_page("index.html", "Home", "Vidyodaya Shishu Sadan School in Gauradaha-1, Jhapa", "home", HOME_CONTENT, is_home=True)
-generate_page("about.html", "About Us", "Learn about Vidyodaya Shishu Sadan", "about", ABOUT_CONTENT)
-generate_page("academics.html", "Academics", "Our programs and curriculum", "academics", ACADEMICS_CONTENT)
-generate_page("facilities.html", "Facilities", "State of the art facilities", "facilities", FACILITIES_CONTENT)
-generate_page("gallery.html", "Gallery", "Life at Vidyodaya", "gallery", GALLERY_CONTENT)
-generate_page("notices.html", "Notices", "Latest notices and updates", "notices", NOTICES_CONTENT)
-generate_page("contact.html", "Contact Us", "Get in touch with us", "contact", CONTACT_CONTENT)
-generate_page("404.html", "Page Not Found", "404 Error", "404", ERROR_404_CONTENT)
+// Generate pages
+generatePage("index.html", "Home", "Vidyodaya Shishu Sadan School in Gauradaha-1, Jhapa", "home", HOME_CONTENT, true);
+generatePage("about.html", "About Us", "Learn about Vidyodaya Shishu Sadan", "about", ABOUT_CONTENT);
+generatePage("academics.html", "Academics", "Our programs and curriculum", "academics", ACADEMICS_CONTENT);
+generatePage("facilities.html", "Facilities", "State of the art facilities", "facilities", FACILITIES_CONTENT);
+generatePage("gallery.html", "Gallery", "Life at Vidyodaya", "gallery", GALLERY_CONTENT);
+generatePage("notices.html", "Notices", "Latest notices and updates", "notices", NOTICES_CONTENT);
+generatePage("contact.html", "Contact Us", "Get in touch with us", "contact", CONTACT_CONTENT);
+generatePage("404.html", "Page Not Found", "404 Error", "404", ERROR_404_CONTENT);
 
-print("HTML Pages generated successfully!")
+console.log("HTML Pages generated successfully!");

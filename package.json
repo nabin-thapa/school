@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "vite",
-    "build": "(python3 build_html.py || python build_html.py) && npx vite build",
+    "build": "node generate-site.js && npx vite build",
     "preview": "vite preview"
   },
   "dependencies": {
