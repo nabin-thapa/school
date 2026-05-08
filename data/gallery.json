@@ -1,5 +1,11 @@
 [
   {
+    "image": "/src/assets/images/1778214640557-DALLÂ·E 2024-07-04 21.16.15 - A serene and calming background with soft pastel colors, depicting a peaceful nature scene with a gentle sunrise. In the center, there's a silhouette .jpg",
+    "alt": "demo",
+    "spanClass": "",
+    "delay": ""
+  },
+  {
     "image": "/src/assets/images/school-photo.jpg",
     "alt": "School Building",
     "spanClass": "md:col-span-2 md:row-span-2",

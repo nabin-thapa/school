@@ -1,5 +1,16 @@
 [
   {
+    "date": "Baisshak",
+    "month": "25",
+    "isUrgent": true,
+    "postedText": "Posted just now",
+    "title": "school will remain close",
+    "description": "nothing ",
+    "linkText": "Read More",
+    "link": "#",
+    "colorClass": "secondary"
+  },
+  {
     "date": "10",
     "month": "Mar",
     "isUrgent": true,

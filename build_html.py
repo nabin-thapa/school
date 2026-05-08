@@ -471,6 +471,7 @@ with open(os.path.join(base_dir, "data", "gallery.json"), "r", encoding="utf-8")
     gallery_data = json.load(f)
     if isinstance(gallery_data, dict) and "gallery" in gallery_data:
         gallery_data = gallery_data["gallery"]
+    gallery_data = gallery_data[:50] # Hard limit to prevent slow loading on large datasets
 
 GALLERY_CONTENT = """
     <section class="bg-primary-900 pt-32 pb-20 text-center relative overflow-hidden">
@@ -506,6 +507,7 @@ with open(os.path.join(base_dir, "data", "notices.json"), "r", encoding="utf-8")
     notices_data = json.load(f)
     if isinstance(notices_data, dict) and "notices" in notices_data:
         notices_data = notices_data["notices"]
+    notices_data = notices_data[:50] # Hard limit to prevent slow loading on large datasets
 
 NOTICES_CONTENT = """
     <section class="bg-primary-900 pt-32 pb-20 text-center relative overflow-hidden">
@@ -600,27 +602,63 @@ CONTACT_CONTENT = """
                 <div class="lg:col-span-2">
                     <div class="bg-white p-8 md:p-12 rounded-2xl shadow-lg border border-gray-100" data-aos="fade-left">
                         <h3 class="text-2xl font-bold text-primary-900 mb-6">Send us a Message</h3>
-                        <form class="space-y-6">
+                        <form id="contactForm" class="space-y-6">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-                                    <input type="text" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition" placeholder="John Doe">
+                                    <input type="text" id="contactName" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition" placeholder="John Doe">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-                                    <input type="email" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition" placeholder="john@example.com">
+                                    <input type="email" id="contactEmail" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition" placeholder="john@example.com">
                                 </div>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Subject</label>
-                                <input type="text" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition" placeholder="Admission Inquiry">
+                                <input type="text" id="contactSubject" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition" placeholder="Admission Inquiry">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Message</label>
-                                <textarea rows="5" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition" placeholder="Your message here..."></textarea>
+                                <textarea id="contactMessage" required rows="5" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition" placeholder="Your message here..."></textarea>
                             </div>
-                            <button type="button" class="btn-primary w-full text-lg">Send Message</button>
+                            <button type="submit" class="btn-primary w-full text-lg">Send Message</button>
+                            <p id="contactStatus" class="mt-4 font-bold text-center hidden"></p>
                         </form>
+                        <script>
+                            document.getElementById('contactForm')?.addEventListener('submit', async (e) => {
+                                e.preventDefault();
+                                const status = document.getElementById('contactStatus');
+                                status.classList.remove('hidden', 'text-green-600', 'text-red-600');
+                                status.innerText = "Sending...";
+                                
+                                const data = {
+                                    name: document.getElementById('contactName').value,
+                                    email: document.getElementById('contactEmail').value,
+                                    subject: document.getElementById('contactSubject').value,
+                                    message: document.getElementById('contactMessage').value,
+                                    date: new Date().toLocaleDateString()
+                                };
+                                
+                                try {
+                                    const res = await fetch('/api/messages', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify(data)
+                                    });
+                                    if(res.ok) {
+                                        status.innerText = "Message sent successfully!";
+                                        status.classList.add('text-green-600');
+                                        document.getElementById('contactForm').reset();
+                                    } else {
+                                        status.innerText = "Failed to send message. Please try again.";
+                                        status.classList.add('text-red-600');
+                                    }
+                                } catch (err) {
+                                    status.innerText = "Error connecting to server.";
+                                    status.classList.add('text-red-600');
+                                }
+                            });
+                        </script>
                     </div>
                 </div>
             </div>
@@ -633,6 +671,19 @@ CONTACT_CONTENT = """
     </section>
 """
 
+ERROR_404_CONTENT = """
+    <section class="bg-primary-900 pt-40 pb-32 text-center relative overflow-hidden flex flex-col justify-center min-h-[70vh]">
+        <div class="container mx-auto px-4 relative z-10">
+            <h1 class="text-9xl font-bold text-white mb-4 drop-shadow-lg">404</h1>
+            <h2 class="text-3xl font-bold text-blue-100 mb-6">Oops! Page Not Found</h2>
+            <p class="text-blue-200 text-lg max-w-2xl mx-auto mb-10">The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.</p>
+            <a href="/" class="bg-secondary-500 text-primary-900 px-8 py-4 rounded-full font-bold hover:bg-secondary-600 transition shadow-lg text-lg inline-flex items-center gap-2">
+                <i data-lucide="home" class="w-5 h-5"></i> Return to Homepage
+            </a>
+        </div>
+    </section>
+"""
+
 # Generate pages
 generate_page("index.html", "Home", "Vidyodaya Shishu Sadan School in Gauradaha-1, Jhapa", "home", HOME_CONTENT, is_home=True)
 generate_page("about.html", "About Us", "Learn about Vidyodaya Shishu Sadan", "about", ABOUT_CONTENT)
@@ -641,5 +692,6 @@ generate_page("facilities.html", "Facilities", "State of the art facilities", "f
 generate_page("gallery.html", "Gallery", "Life at Vidyodaya", "gallery", GALLERY_CONTENT)
 generate_page("notices.html", "Notices", "Latest notices and updates", "notices", NOTICES_CONTENT)
 generate_page("contact.html", "Contact Us", "Get in touch with us", "contact", CONTACT_CONTENT)
+generate_page("404.html", "Page Not Found", "404 Error", "404", ERROR_404_CONTENT)
 
 print("HTML Pages generated successfully!")
