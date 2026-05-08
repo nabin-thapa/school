@@ -4,7 +4,7 @@
   "description": "Vidyodaya Shishu Sadan School Website",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "python build_html.py && vite build",
     "preview": "vite preview"
   },
   "devDependencies": {
