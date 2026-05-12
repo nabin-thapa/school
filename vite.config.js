@@ -12,6 +12,7 @@ export default defineConfig({
         gallery: resolve(__dirname, 'gallery.html'),
         notices: resolve(__dirname, 'notices.html'),
         contact: resolve(__dirname, 'contact.html'),
+        404: resolve(__dirname, '404.html'),
       }
     }
   }

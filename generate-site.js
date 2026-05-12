@@ -615,7 +615,8 @@ const CONTACT_CONTENT = `
                 <div class="lg:col-span-2">
                     <div class="bg-white p-8 md:p-12 rounded-2xl shadow-lg border border-gray-100" data-aos="fade-left">
                         <h3 class="text-2xl font-bold text-primary-900 mb-6">Send us a Message</h3>
-                        <form id="contactForm" class="space-y-6">
+                        <form id="contactForm" name="contact" method="POST" data-netlify="true" class="space-y-6">
+                            <input type="hidden" name="form-name" value="contact">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
@@ -653,6 +654,23 @@ const CONTACT_CONTENT = `
                                 };
                                 
                                 try {
+                                    // If we are on Netlify, we use standard form submission
+                                    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+                                        const formData = new FormData(e.target);
+                                        const res = await fetch("/", {
+                                            method: "POST",
+                                            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                                            body: new URLSearchParams(formData).toString(),
+                                        });
+                                        if (res.ok) {
+                                            status.innerText = "Message sent successfully to Netlify!";
+                                            status.classList.add('text-green-600');
+                                            e.target.reset();
+                                        } else { throw new Error("Netlify submission failed"); }
+                                        return;
+                                    }
+
+                                    // Local Fallback (for node server.js)
                                     const res = await fetch('/api/messages', {
                                         method: 'POST',
                                         headers: { 'Content-Type': 'application/json' },
