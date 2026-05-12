@@ -16,8 +16,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Netlify Identity Widget -->
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/js/supabase-config.js"></script>
     
     <!-- AOS CSS -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
@@ -106,44 +107,23 @@
             <p class="text-blue-100 text-lg max-w-2xl mx-auto">Glimpses of life at Vidyodaya Shishu Sadan.</p>
         </div>
     </section>
-
     <section class="section-padding">
         <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 auto-rows-[250px]">
-
-                <a href="#" class="gallery-item block relative overflow-hidden rounded-xl group " data-aos="fade-up">
-                    <img src="/src/assets/images/1778214640557-DALLÂ·E 2024-07-04 21.16.15 - A serene and calming background with soft pastel colors, depicting a peaceful nature scene with a gentle sunrise. In the center, there's a silhouette .jpg" alt="demo" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
-                    <div class="absolute inset-0 bg-primary-900/60 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center">
-                        <i data-lucide="zoom-in" class="w-8 h-8 text-white"></i>
-                    </div>
-                </a>
-                <a href="#" class="gallery-item block relative overflow-hidden rounded-xl group md:col-span-2 md:row-span-2" data-aos="fade-up">
-                    <img src="/src/assets/images/school-photo.jpg" alt="School Building" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
-                    <div class="absolute inset-0 bg-primary-900/60 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center">
-                        <span class="text-white font-bold text-xl"><i data-lucide="zoom-in" class="w-8 h-8 mb-2 mx-auto"></i> View Image</span>
-                    </div>
-                </a>
-                <a href="#" class="gallery-item block relative overflow-hidden rounded-xl group " data-aos="fade-up" data-aos-delay="100">
-                    <img src="https://images.unsplash.com/photo-1509062522246-3755977927d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Classroom Activity" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
-                    <div class="absolute inset-0 bg-primary-900/60 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center">
-                        <i data-lucide="zoom-in" class="w-8 h-8 text-white"></i>
-                    </div>
-                </a>
-                <a href="#" class="gallery-item block relative overflow-hidden rounded-xl group " data-aos="fade-up" data-aos-delay="200">
-                    <img src="https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Sports Event" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
-                    <div class="absolute inset-0 bg-primary-900/60 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center">
-                        <i data-lucide="zoom-in" class="w-8 h-8 text-white"></i>
-                    </div>
-                </a>
-                <a href="#" class="gallery-item block relative overflow-hidden rounded-xl group " data-aos="fade-up">
-                    <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Computer Lab" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
-                    <div class="absolute inset-0 bg-primary-900/60 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center">
-                        <i data-lucide="zoom-in" class="w-8 h-8 text-white"></i>
-                    </div>
-                </a>
+            <div id="gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 auto-rows-[250px]">
+                <p class="col-span-full text-center text-gray-400 py-12">Loading gallery...</p>
             </div>
         </div>
     </section>
+    <script>
+    (async()=>{
+        const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+        const{data}=await sb.from('gallery').select('*').order('created_at',{ascending:false});
+        const grid=document.getElementById('gallery-grid');
+        if(!data||data.length===0){grid.innerHTML='<p class="col-span-full text-center text-gray-500 py-12">No photos yet.</p>';return;}
+        grid.innerHTML=data.map(g=>'<a href="#" class="gallery-item block relative overflow-hidden rounded-xl group" data-aos="fade-up"><img src="'+g.image_url+'" alt="'+g.alt_text+'" class="w-full h-full object-cover group-hover:scale-110 transition duration-700"><div class="absolute inset-0 bg-primary-900/60 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center"><i data-lucide="zoom-in" class="w-8 h-8 text-white"></i></div></a>').join('');
+        if(typeof lucide!=='undefined')lucide.createIcons();
+    })();
+    </script>
 
     <!-- Footer -->
     <footer class="bg-primary-900 text-white pt-16 pb-8 border-t-4 border-secondary-500 mt-20">
@@ -216,5 +196,6 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script type="module" src="/src/js/main.js"></script>
+
 </body>
 </html>

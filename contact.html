@@ -16,8 +16,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Netlify Identity Widget -->
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/js/supabase-config.js"></script>
     
     <!-- AOS CSS -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
@@ -150,7 +151,8 @@
                 <div class="lg:col-span-2">
                     <div class="bg-white p-8 md:p-12 rounded-2xl shadow-lg border border-gray-100" data-aos="fade-left">
                         <h3 class="text-2xl font-bold text-primary-900 mb-6">Send us a Message</h3>
-                        <form id="contactForm" class="space-y-6">
+                        <form id="contactForm" name="contact" method="POST" data-netlify="true" class="space-y-6">
+                            <input type="hidden" name="form-name" value="contact">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
@@ -178,31 +180,20 @@
                                 const status = document.getElementById('contactStatus');
                                 status.classList.remove('hidden', 'text-green-600', 'text-red-600');
                                 status.innerText = "Sending...";
-                                
-                                const data = {
-                                    name: document.getElementById('contactName').value,
-                                    email: document.getElementById('contactEmail').value,
-                                    subject: document.getElementById('contactSubject').value,
-                                    message: document.getElementById('contactMessage').value,
-                                    date: new Date().toLocaleDateString()
-                                };
-                                
                                 try {
-                                    const res = await fetch('/api/messages', {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify(data)
+                                    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                                    const { error } = await sb.from('messages').insert({
+                                        name: document.getElementById('contactName').value,
+                                        email: document.getElementById('contactEmail').value,
+                                        subject: document.getElementById('contactSubject').value,
+                                        message: document.getElementById('contactMessage').value
                                     });
-                                    if(res.ok) {
-                                        status.innerText = "Message sent successfully!";
-                                        status.classList.add('text-green-600');
-                                        document.getElementById('contactForm').reset();
-                                    } else {
-                                        status.innerText = "Failed to send message. Please try again.";
-                                        status.classList.add('text-red-600');
-                                    }
+                                    if (error) throw error;
+                                    status.innerText = "Message sent successfully!";
+                                    status.classList.add('text-green-600');
+                                    e.target.reset();
                                 } catch (err) {
-                                    status.innerText = "Error connecting to server.";
+                                    status.innerText = "Failed to send. Please try again.";
                                     status.classList.add('text-red-600');
                                 }
                             });
@@ -289,5 +280,6 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script type="module" src="/src/js/main.js"></script>
+
 </body>
 </html>

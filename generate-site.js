@@ -25,8 +25,9 @@ const HEAD_TEMPLATE = `
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Netlify Identity Widget -->
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/js/supabase-config.js"></script>
     
     <!-- AOS CSS -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
@@ -183,17 +184,7 @@ const FOOTER = `
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script type="module" src="/src/js/main.js"></script>
-    <script>
-      if (window.netlifyIdentity) {
-        window.netlifyIdentity.on("init", user => {
-          if (!user) {
-            window.netlifyIdentity.on("login", () => {
-              document.location.href = "/admin/";
-            });
-          }
-        });
-      }
-    </script>
+
 </body>
 </html>
 `;
@@ -481,98 +472,56 @@ const FACILITIES_CONTENT = `
     </section>
 `;
 
-// Dynamic Content loading
-let galleryData = [];
-try {
-    const raw = fs.readFileSync(path.join(baseDir, 'data', 'gallery.json'), 'utf-8');
-    const parsed = JSON.parse(raw);
-    galleryData = Array.isArray(parsed) ? parsed : (parsed.gallery || []);
-    galleryData = galleryData.slice(0, 50);
-} catch (e) { console.error("Gallery data load error", e); }
-
-let GALLERY_CONTENT = `
+// Dynamic Gallery - loaded from Supabase at runtime
+const GALLERY_CONTENT = `
     <section class="bg-primary-900 pt-32 pb-20 text-center relative overflow-hidden">
         <div class="container mx-auto px-4 relative z-10">
             <h1 class="text-5xl font-bold text-white mb-4">Gallery</h1>
             <p class="text-blue-100 text-lg max-w-2xl mx-auto">Glimpses of life at Vidyodaya Shishu Sadan.</p>
         </div>
     </section>
-
     <section class="section-padding">
         <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 auto-rows-[250px]">
-`;
-
-galleryData.forEach(item => {
-    let delayAttr = item.delay ? ` data-aos-delay="${item.delay}"` : "";
-    let zoomIcon = item.spanClass ? '<span class="text-white font-bold text-xl"><i data-lucide="zoom-in" class="w-8 h-8 mb-2 mx-auto"></i> View Image</span>' : '<i data-lucide="zoom-in" class="w-8 h-8 text-white"></i>';
-    
-    GALLERY_CONTENT += `
-                <a href="#" class="gallery-item block relative overflow-hidden rounded-xl group ${item.spanClass || ''}" data-aos="fade-up"${delayAttr}>
-                    <img src="${item.image}" alt="${item.alt}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
-                    <div class="absolute inset-0 bg-primary-900/60 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center">
-                        ${zoomIcon}
-                    </div>
-                </a>`;
-});
-
-GALLERY_CONTENT += `
+            <div id="gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 auto-rows-[250px]">
+                <p class="col-span-full text-center text-gray-400 py-12">Loading gallery...</p>
             </div>
         </div>
     </section>
+    <script>
+    (async()=>{
+        const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+        const{data}=await sb.from('gallery').select('*').order('created_at',{ascending:false});
+        const grid=document.getElementById('gallery-grid');
+        if(!data||data.length===0){grid.innerHTML='<p class="col-span-full text-center text-gray-500 py-12">No photos yet.</p>';return;}
+        grid.innerHTML=data.map(g=>'<a href="#" class="gallery-item block relative overflow-hidden rounded-xl group" data-aos="fade-up"><img src="'+g.image_url+'" alt="'+g.alt_text+'" class="w-full h-full object-cover group-hover:scale-110 transition duration-700"><div class="absolute inset-0 bg-primary-900/60 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center"><i data-lucide="zoom-in" class="w-8 h-8 text-white"></i></div></a>').join('');
+        if(typeof lucide!=='undefined')lucide.createIcons();
+    })();
+    </script>
 `;
 
-let noticesData = [];
-try {
-    const raw = fs.readFileSync(path.join(baseDir, 'data', 'notices.json'), 'utf-8');
-    const parsed = JSON.parse(raw);
-    noticesData = Array.isArray(parsed) ? parsed : (parsed.notices || []);
-    noticesData = noticesData.slice(0, 50);
-} catch (e) { console.error("Notices data load error", e); }
-
-let NOTICES_CONTENT = `
+// Dynamic Notices - loaded from Supabase at runtime
+const NOTICES_CONTENT = `
     <section class="bg-primary-900 pt-32 pb-20 text-center relative overflow-hidden">
         <div class="container mx-auto px-4 relative z-10">
-            <h1 class="text-5xl font-bold text-white mb-4">Notices & Updates</h1>
+            <h1 class="text-5xl font-bold text-white mb-4">Notices &amp; Updates</h1>
             <p class="text-blue-100 text-lg max-w-2xl mx-auto">Stay informed with the latest announcements.</p>
         </div>
     </section>
-
     <section class="section-padding">
         <div class="container mx-auto px-4 max-w-4xl">
-            <div class="space-y-6">
-`;
-
-noticesData.forEach(item => {
-    let urgentBadge = item.isUrgent ? '<span class="bg-red-100 text-red-600 text-xs font-bold px-2 py-1 rounded">Urgent</span>' : "";
-    let postedText = item.postedText ? `<span class="text-sm text-gray-500 flex items-center"><i data-lucide="clock" class="w-3 h-3 mr-1"></i> ${item.postedText}</span>` : "";
-    
-    let metaDiv = "";
-    if (urgentBadge || postedText) {
-        metaDiv = `<div class="flex items-center gap-2 mb-2">${urgentBadge}${postedText}</div>`;
-    }
-        
-    NOTICES_CONTENT += `
-                <div class="bg-white p-6 rounded-2xl shadow-md border-l-4 border-${item.colorClass}-500 hover:shadow-lg transition flex flex-col md:flex-row gap-6 items-center" data-aos="fade-up">
-                    <div class="bg-gray-50 p-4 rounded-xl text-center min-w-[100px] border border-gray-100">
-                        <span class="block text-2xl font-bold text-primary-600">${item.date}</span>
-                        <span class="block text-sm uppercase font-bold text-gray-500">${item.month}</span>
-                    </div>
-                    <div class="flex-grow">
-                        ${metaDiv}
-                        <h3 class="text-xl font-bold text-primary-900 mb-2">${item.title}</h3>
-                        <p class="text-gray-600">${item.description}</p>
-                    </div>
-                    <div>
-                        <a href="${item.link}" class="btn-outline !py-2 !px-4 text-sm whitespace-nowrap">${item.linkText}</a>
-                    </div>
-                </div>`;
-});
-
-NOTICES_CONTENT += `
-            </div>
+            <div id="notices-container" class="space-y-6"><p class="text-center text-gray-400 py-12">Loading notices...</p></div>
         </div>
     </section>
+    <script>
+    (async()=>{
+        const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+        const{data}=await sb.from('notices').select('*').order('created_at',{ascending:false});
+        const c=document.getElementById('notices-container');
+        if(!data||data.length===0){c.innerHTML='<p class="text-center text-gray-500 py-12">No notices yet.</p>';return;}
+        c.innerHTML=data.map(n=>'<div class="bg-white p-6 rounded-2xl shadow-md border-l-4 border-'+(n.color_class||'primary')+'-500 hover:shadow-lg transition flex flex-col md:flex-row gap-6 items-center" data-aos="fade-up"><div class="bg-gray-50 p-4 rounded-xl text-center min-w-[100px] border"><span class="block text-2xl font-bold text-primary-600">'+n.date+'</span><span class="block text-sm uppercase font-bold text-gray-500">'+n.month+'</span></div><div class="flex-grow"><h3 class="text-xl font-bold text-primary-900 mb-2">'+n.title+'</h3><p class="text-gray-600">'+n.description+'</p></div></div>').join('');
+        if(typeof lucide!=='undefined')lucide.createIcons();
+    })();
+    </script>
 `;
 
 const CONTACT_CONTENT = `
@@ -655,48 +604,20 @@ const CONTACT_CONTENT = `
                                 const status = document.getElementById('contactStatus');
                                 status.classList.remove('hidden', 'text-green-600', 'text-red-600');
                                 status.innerText = "Sending...";
-                                
-                                const data = {
-                                    name: document.getElementById('contactName').value,
-                                    email: document.getElementById('contactEmail').value,
-                                    subject: document.getElementById('contactSubject').value,
-                                    message: document.getElementById('contactMessage').value,
-                                    date: new Date().toLocaleDateString()
-                                };
-                                
                                 try {
-                                    // If we are on Netlify, we use standard form submission
-                                    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-                                        const formData = new FormData(e.target);
-                                        const res = await fetch("/", {
-                                            method: "POST",
-                                            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                                            body: new URLSearchParams(formData).toString(),
-                                        });
-                                        if (res.ok) {
-                                            status.innerText = "Message sent successfully to Netlify!";
-                                            status.classList.add('text-green-600');
-                                            e.target.reset();
-                                        } else { throw new Error("Netlify submission failed"); }
-                                        return;
-                                    }
-
-                                    // Local Fallback (for node server.js)
-                                    const res = await fetch('/api/messages', {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify(data)
+                                    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                                    const { error } = await sb.from('messages').insert({
+                                        name: document.getElementById('contactName').value,
+                                        email: document.getElementById('contactEmail').value,
+                                        subject: document.getElementById('contactSubject').value,
+                                        message: document.getElementById('contactMessage').value
                                     });
-                                    if(res.ok) {
-                                        status.innerText = "Message sent successfully!";
-                                        status.classList.add('text-green-600');
-                                        document.getElementById('contactForm').reset();
-                                    } else {
-                                        status.innerText = "Failed to send message. Please try again.";
-                                        status.classList.add('text-red-600');
-                                    }
+                                    if (error) throw error;
+                                    status.innerText = "Message sent successfully!";
+                                    status.classList.add('text-green-600');
+                                    e.target.reset();
                                 } catch (err) {
-                                    status.innerText = "Error connecting to server.";
+                                    status.innerText = "Failed to send. Please try again.";
                                     status.classList.add('text-red-600');
                                 }
                             });

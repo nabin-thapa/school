@@ -1,15 +1,153 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="robots" content="noindex" />
-  <title>Vidyodaya Admin Portal</title>
-  <!-- Netlify Identity Widget -->
-  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <title>Vidyodaya Admin Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/js/supabase-config.js"></script>
+    <style>
+        body { font-family: 'Outfit', sans-serif; }
+        .hidden { display: none !important; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .active-tab { background-color: #EFF6FF; color: #2563EB; font-weight: 600; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    </style>
 </head>
-<body>
-  <!-- Include the Decap CMS script -->
-  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+<body class="bg-gray-50 text-gray-800 h-screen overflow-hidden">
+
+    <!-- LOGIN -->
+    <div id="login-screen" class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-900 to-blue-950 z-50">
+        <div class="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-md relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-2 bg-blue-500"></div>
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4"><i data-lucide="lock" class="w-8 h-8"></i></div>
+                <h2 class="text-3xl font-bold text-gray-900">Admin Portal</h2>
+                <p class="text-gray-500 mt-2">Sign in to manage your school website</p>
+            </div>
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <div class="relative"><div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400"><i data-lucide="mail" class="w-5 h-5"></i></div>
+                    <input type="email" id="email" class="w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm" placeholder="admin@school.com"></div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <div class="relative"><div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400"><i data-lucide="key" class="w-5 h-5"></i></div>
+                    <input type="password" id="password" class="w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm" placeholder="••••••••"></div>
+                </div>
+                <button onclick="login()" class="w-full bg-blue-600 text-white font-bold py-3.5 px-4 rounded-xl hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 transition shadow-lg shadow-blue-600/30">Sign In</button>
+            </div>
+            <div id="login-error" class="bg-red-50 text-red-500 text-sm font-medium p-3 rounded-lg mt-4 text-center hidden"><span id="login-error-text">Invalid credentials</span></div>
+        </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboard-screen" class="hidden h-full flex w-full relative overflow-hidden">
+        <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-gray-900/50 z-20 hidden md:hidden backdrop-blur-sm"></div>
+        <!-- Sidebar -->
+        <aside id="sidebar" class="w-72 bg-white border-r flex flex-col h-full absolute md:relative z-30 transform -translate-x-full md:translate-x-0 transition-transform duration-300 shadow-2xl md:shadow-none">
+            <div class="p-6 border-b flex items-center justify-between gap-4">
+                <div class="flex items-center gap-4"><div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center text-white font-bold text-2xl shadow-lg">V</div>
+                <div><h1 class="text-lg font-bold text-gray-900">Vidyodaya</h1><p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Admin Portal</p></div></div>
+                <button onclick="toggleSidebar()" class="md:hidden text-gray-400 hover:text-gray-800"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+                <p class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Menu</p>
+                <button onclick="switchTab('dashboard')" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl transition text-gray-600 hover:bg-gray-50 font-medium active-tab" data-target="dashboard"><i data-lucide="layout-dashboard" class="w-5 h-5"></i> Overview</button>
+                <button onclick="switchTab('gallery')" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl transition text-gray-600 hover:bg-gray-50 font-medium" data-target="gallery"><i data-lucide="image" class="w-5 h-5"></i> Gallery</button>
+                <button onclick="switchTab('notices')" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl transition text-gray-600 hover:bg-gray-50 font-medium" data-target="notices"><i data-lucide="bell" class="w-5 h-5"></i> Notices</button>
+                <button onclick="switchTab('inbox')" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl transition text-gray-600 hover:bg-gray-50 font-medium relative" data-target="inbox"><i data-lucide="mail" class="w-5 h-5"></i> Inbox <span id="msg-badge" class="absolute right-4 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center hidden">!</span></button>
+                <button onclick="switchTab('settings')" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl transition text-gray-600 hover:bg-gray-50 font-medium" data-target="settings"><i data-lucide="settings" class="w-5 h-5"></i> Settings</button>
+            </nav>
+            <div class="p-4 border-t"><button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition text-gray-600 hover:bg-red-50 hover:text-red-600 font-medium group"><i data-lucide="log-out" class="w-5 h-5"></i> Sign Out</button></div>
+        </aside>
+
+        <main class="flex-1 bg-gray-50 h-full overflow-y-auto relative w-full">
+            <div class="md:hidden bg-white border-b p-4 flex justify-between items-center sticky top-0 z-10 shadow-sm">
+                <div class="flex items-center gap-3"><div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-sm">V</div><h1 class="text-lg font-bold">Admin Portal</h1></div>
+                <button onclick="toggleSidebar()" class="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-600"><i data-lucide="menu" class="w-6 h-6"></i></button>
+            </div>
+            <header class="hidden md:flex bg-white/80 backdrop-blur-md sticky top-0 z-10 border-b px-8 py-4 justify-between items-center">
+                <h2 id="page-title" class="text-2xl font-bold text-gray-800">Overview</h2>
+                <div class="flex items-center gap-3 bg-white border px-4 py-2 rounded-full shadow-sm text-sm font-medium text-gray-600"><span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Supabase Connected</div>
+            </header>
+
+            <div class="p-4 md:p-8 max-w-6xl mx-auto">
+                <!-- TAB: DASHBOARD -->
+                <div id="tab-dashboard" class="tab-content active">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border flex items-center gap-4 hover:shadow-md transition cursor-pointer" onclick="switchTab('gallery')"><div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center"><i data-lucide="image" class="w-7 h-7"></i></div><div><p class="text-gray-500 text-sm font-medium">Gallery Photos</p><p class="text-3xl font-bold text-gray-900" id="stat-gallery">0</p></div></div>
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border flex items-center gap-4 hover:shadow-md transition cursor-pointer" onclick="switchTab('notices')"><div class="w-14 h-14 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center"><i data-lucide="bell" class="w-7 h-7"></i></div><div><p class="text-gray-500 text-sm font-medium">Active Notices</p><p class="text-3xl font-bold text-gray-900" id="stat-notices">0</p></div></div>
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border flex items-center gap-4 hover:shadow-md transition cursor-pointer" onclick="switchTab('inbox')"><div class="w-14 h-14 bg-green-50 text-green-600 rounded-full flex items-center justify-center"><i data-lucide="mail" class="w-7 h-7"></i></div><div><p class="text-gray-500 text-sm font-medium">Messages</p><p class="text-3xl font-bold text-gray-900" id="stat-messages">0</p></div></div>
+                    </div>
+                    <div class="bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl shadow-lg p-8 text-white relative overflow-hidden">
+                        <div class="relative z-10"><h3 class="text-2xl font-bold mb-2">Welcome to your Control Center!</h3><p class="text-blue-100 max-w-xl leading-relaxed mb-6">Manage your school website content. Changes are saved instantly to Supabase and appear live on your website.</p>
+                        <a href="/" target="_blank" class="inline-flex items-center gap-2 bg-white text-blue-700 px-6 py-3 rounded-xl font-bold shadow-md hover:shadow-xl transition">View Live Website <i data-lucide="external-link" class="w-4 h-4"></i></a></div>
+                    </div>
+                </div>
+
+                <!-- TAB: GALLERY -->
+                <div id="tab-gallery" class="tab-content">
+                    <div class="bg-white p-8 rounded-2xl shadow-sm border mb-8">
+                        <div class="flex items-center gap-3 mb-6"><div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center"><i data-lucide="upload-cloud" class="w-5 h-5"></i></div><h3 class="text-xl font-bold">Upload New Photo</h3></div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+                            <div><label class="block text-sm font-medium text-gray-700 mb-2">Select Image</label><input type="file" id="image-upload" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-3 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border rounded-xl cursor-pointer"></div>
+                            <div><label class="block text-sm font-medium text-gray-700 mb-2">Alt Text</label><input type="text" id="image-alt" placeholder="e.g. Annual Sports Day" class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none"></div>
+                        </div>
+                        <div class="mt-6"><button onclick="uploadImage()" id="btn-upload" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-blue-700 transition shadow-md flex items-center gap-2"><i data-lucide="plus-circle" class="w-5 h-5"></i> Publish Photo</button>
+                        <p id="gallery-status" class="mt-3 text-sm font-bold text-green-600 hidden flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4"></i> Published!</p></div>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2"><i data-lucide="grid" class="w-5 h-5 text-gray-400"></i> Gallery</h3>
+                    <div id="gallery-list" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+                </div>
+
+                <!-- TAB: NOTICES -->
+                <div id="tab-notices" class="tab-content">
+                    <div class="bg-white p-5 md:p-8 rounded-2xl shadow-sm border mb-8">
+                        <div class="flex items-center gap-3 mb-6"><div class="w-10 h-10 bg-purple-50 text-purple-600 rounded-lg flex items-center justify-center"><i data-lucide="megaphone" class="w-5 h-5"></i></div><h3 class="text-xl font-bold">Publish New Notice</h3></div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6">
+                            <div><label class="block text-sm font-medium text-gray-700 mb-2">Title</label><input type="text" id="notice-title" placeholder="e.g. Admission Open 2026" class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"></div>
+                            <div><label class="block text-sm font-medium text-gray-700 mb-2">Date (Day Month)</label><input type="text" id="notice-date" placeholder="e.g. 15 Apr" class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"></div>
+                            <div class="md:col-span-2"><label class="block text-sm font-medium text-gray-700 mb-2">Description</label><textarea id="notice-desc" rows="3" placeholder="Full details..." class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"></textarea></div>
+                        </div>
+                        <button onclick="addNotice()" id="btn-notice" class="bg-purple-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-purple-700 transition shadow-md flex items-center gap-2"><i data-lucide="send" class="w-5 h-5"></i> Broadcast Notice</button>
+                        <p id="notice-status" class="mt-3 text-sm font-bold text-green-600 hidden flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4"></i> Published!</p>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">Active Notices</h3>
+                    <div id="notices-list" class="space-y-4"></div>
+                </div>
+
+                <!-- TAB: INBOX -->
+                <div id="tab-inbox" class="tab-content">
+                    <div class="flex items-center gap-3 mb-6"><div class="w-10 h-10 bg-green-50 text-green-600 rounded-lg flex items-center justify-center"><i data-lucide="inbox" class="w-5 h-5"></i></div><h3 class="text-xl font-bold">Messages</h3></div>
+                    <div id="messages-list" class="space-y-4"></div>
+                </div>
+
+                <!-- TAB: SETTINGS -->
+                <div id="tab-settings" class="tab-content">
+                    <div class="bg-white p-8 rounded-2xl shadow-sm border max-w-2xl">
+                        <div class="flex items-center gap-3 mb-8"><div class="w-10 h-10 bg-gray-100 text-gray-700 rounded-lg flex items-center justify-center"><i data-lucide="shield" class="w-5 h-5"></i></div><div><h3 class="text-xl font-bold">Change Password</h3><p class="text-gray-500 text-sm">Update your admin login password</p></div></div>
+                        <div class="space-y-5">
+                            <div><label class="block text-sm font-medium text-gray-700 mb-2">Current Password</label><input type="password" id="current-pass" class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none bg-gray-50"></div>
+                            <div><label class="block text-sm font-medium text-gray-700 mb-2">New Password</label><input type="password" id="new-pass" class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none"></div>
+                            <div><label class="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label><input type="password" id="confirm-pass" class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none"></div>
+                            <button onclick="changePassword()" class="w-full bg-gray-900 text-white font-bold py-3 rounded-xl hover:bg-gray-800 transition shadow-md flex items-center justify-center gap-2"><i data-lucide="lock" class="w-4 h-4"></i> Update Password</button>
+                            <p id="password-status" class="mt-3 text-sm font-bold text-center hidden"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="/admin/app.js"></script>
 </body>
 </html>
