@@ -114,15 +114,77 @@
             </div>
         </div>
     </section>
+    
+    <!-- Lightbox Modal -->
+    <div id="gallery-lightbox" class="fixed inset-0 z-[100] bg-black/90 hidden flex-col items-center justify-center p-4 md:p-8 opacity-0 transition-opacity duration-300">
+        <button id="lightbox-close" class="absolute top-4 right-4 md:top-8 md:right-8 text-white hover:text-gray-300 transition w-10 h-10 flex items-center justify-center bg-white/10 rounded-full backdrop-blur-sm z-[101]">
+            <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+        <img id="lightbox-img" src="" alt="Gallery Image Full" class="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl scale-95 transition-transform duration-300 relative z-[101]">
+        <p id="lightbox-caption" class="text-center text-white text-lg font-medium mt-4 opacity-0 transition-opacity duration-300 relative z-[101]"></p>
+        <div id="lightbox-bg" class="absolute inset-0 z-[100]"></div>
+    </div>
+
     <script>
     (async()=>{
         const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
         const{data}=await sb.from('gallery').select('*').order('created_at',{ascending:false});
         const grid=document.getElementById('gallery-grid');
         if(!data||data.length===0){grid.innerHTML='<p class="col-span-full text-center text-gray-500 py-12">No photos yet.</p>';return;}
-        grid.innerHTML=data.map(g=>'<a href="#" class="gallery-item block relative overflow-hidden rounded-xl group" data-aos="fade-up"><img src="'+g.image_url+'" alt="'+g.alt_text+'" class="w-full h-full object-cover group-hover:scale-110 transition duration-700"><div class="absolute inset-0 bg-primary-900/60 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center"><i data-lucide="zoom-in" class="w-8 h-8 text-white"></i></div></a>').join('');
+        grid.innerHTML=data.map(g=>'<a href="#" onclick="openLightbox(event, \''+g.image_url+'\', \''+(g.alt_text||'').replace(/'/g, "\\'")+'\')" class="gallery-item block relative overflow-hidden rounded-xl group" data-aos="fade-up"><img src="'+g.image_url+'" alt="'+g.alt_text+'" class="w-full h-full object-cover group-hover:scale-110 transition duration-700"><div class="absolute inset-0 bg-primary-900/60 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center"><i data-lucide="zoom-in" class="w-8 h-8 text-white"></i></div></a>').join('');
         if(typeof lucide!=='undefined')lucide.createIcons();
     })();
+    
+    // Lightbox functionality
+    window.openLightbox = function(e, imgSrc, caption) {
+        e.preventDefault();
+        const lightbox = document.getElementById('gallery-lightbox');
+        const img = document.getElementById('lightbox-img');
+        const cap = document.getElementById('lightbox-caption');
+        
+        img.src = imgSrc;
+        cap.textContent = caption;
+        
+        lightbox.classList.remove('hidden');
+        lightbox.classList.add('flex');
+        
+        // Trigger reflow
+        void lightbox.offsetWidth;
+        
+        lightbox.classList.remove('opacity-0');
+        img.classList.remove('scale-95');
+        img.classList.add('scale-100');
+        setTimeout(() => cap.classList.remove('opacity-0'), 150);
+        
+        document.body.style.overflow = 'hidden'; // Prevent scrolling
+    };
+    
+    window.closeLightbox = function() {
+        const lightbox = document.getElementById('gallery-lightbox');
+        const img = document.getElementById('lightbox-img');
+        const cap = document.getElementById('lightbox-caption');
+        
+        lightbox.classList.add('opacity-0');
+        img.classList.remove('scale-100');
+        img.classList.add('scale-95');
+        cap.classList.add('opacity-0');
+        
+        setTimeout(() => {
+            lightbox.classList.add('hidden');
+            lightbox.classList.remove('flex');
+            document.body.style.overflow = '';
+        }, 300);
+    };
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('lightbox-close')?.addEventListener('click', window.closeLightbox);
+        document.getElementById('lightbox-bg')?.addEventListener('click', window.closeLightbox);
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !document.getElementById('gallery-lightbox').classList.contains('hidden')) {
+                window.closeLightbox();
+            }
+        });
+    });
     </script>
 
     <!-- Footer -->
